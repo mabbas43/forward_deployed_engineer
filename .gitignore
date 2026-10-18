@@ -1,0 +1,23 @@
+# Environment / secrets
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# ATLAS runtime state
+.atlas/
+.langgraph_api/
+
+# ATLAS generated eval results
+ATLAS/evals/results/gate_*.json
+ATLAS/evals/results/rag_*.json
+ATLAS/evals/results/shadow_*.json
+ATLAS/evals/results/judge_validation_*.json
+
+# ATLAS Terraform
+ATLAS/infra/terraform/.terraform/
+ATLAS/infra/terraform/*.tfstate*
