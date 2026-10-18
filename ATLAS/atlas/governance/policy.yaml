@@ -1,0 +1,44 @@
+# P6 — policy-as-code. Deny by default. Versioned and reviewed like code; evaluated by atlas/governance/policy.py.
+# The model never decides what it may do: code reads this file + identity + taint and decides.
+version: 2
+default: deny
+
+tools:
+  search_kb:           {roles: [employee, helpdesk, it_support]}
+  lookup_user:         {roles: [helpdesk, it_support]}
+  lookup_invoice:      {roles: [helpdesk, it_support, finance]}
+  reset_password:      {roles: [it_support], requires_approval: true, max_per_day_per_user: 3, deny_if_tainted: true}
+  unlock_account:      {roles: [helpdesk, it_support], requires_approval: true, max_per_day_per_user: 5, deny_if_tainted: true}
+  reset_mfa:           {roles: [it_support], requires_approval: true, max_per_day_per_user: 2, deny_if_tainted: true}
+  request_access:      {roles: [employee, helpdesk, it_support], requires_approval: true, deny_if_tainted: true}
+  request_credit_note: {roles: [finance, it_support], requires_approval: true, deny_if_tainted: true}
+
+# Who a write may target. Employees may only act on their own account; privileged targets always need IT.
+targets:
+  self_service_roles: [employee]
+  protected_accounts: [ceo@acme-logistics.de]
+
+routes:
+  hr:       {auto_act: false, escalate: true, reason: "Annex III employment scope — humans decide employee matters"}
+  escalate: {auto_act: false}
+
+data:
+  redact_input:  [EMAIL_ADDRESS, PHONE_NUMBER, IBAN_CODE, DE_ID, CREDIT_CARD]
+  block_output:  [IBAN_CODE, DE_ID, CREDIT_CARD, MEDICAL]
+  retention_days: {cases: 365, prefs: 180, procedures: 180, checkpoints: 90, audit: 1825}
+
+models:
+  allowed: [gpt-4.1-mini, gpt-4.1, gpt-4.1-2025-04-14, claude-sonnet-4-5, text-embedding-3-small, offline-heuristic, offline-hashing]
+  eu_residency: true
+  # Endpoints considered EU-resident. With eu_residency=true, any other base URL is refused at startup.
+  eu_endpoints: ["https://*.openai.azure.com (EU regions)", "bedrock-runtime.eu-central-1.amazonaws.com", "offline"]
+
+limits:
+  usd_per_request: 0.25
+  usd_per_tenant_per_day: 50
+
+guards:
+  injection_threshold: 0.6
+  grounding_required_for: [ticket, faq]
+
+kill_switch: {tools: false, agent: false, routes: []}

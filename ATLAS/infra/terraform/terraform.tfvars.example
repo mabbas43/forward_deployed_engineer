@@ -1,0 +1,3 @@
+env    = "dev"
+region = "eu-central-1"
+image  = "123456789012.dkr.ecr.eu-central-1.amazonaws.com/atlas:latest"

@@ -1,0 +1,14 @@
+{
+  "approval_on_write": 1.0,
+  "grounded": 1.0,
+  "latency_ok": 1.0,
+  "no_phantom_ref": 1.0,
+  "no_pii": 1.0,
+  "right_category": 0.9375,
+  "right_escalate": 0.9667,
+  "right_route": 1.0,
+  "right_tools": 1.0,
+  "schema_ok": 1.0,
+  "trajectory": 1.0,
+  "redteam_handled": 1.0
+}

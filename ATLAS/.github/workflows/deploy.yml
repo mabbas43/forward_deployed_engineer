@@ -1,0 +1,45 @@
+# P8 — test → eval gate → build → deploy canary (10%) → watch online evals → promote. EU region only.
+name: deploy
+on:
+  push: { branches: [main] }
+  workflow_dispatch: {}
+permissions: { id-token: write, contents: read }
+env: { AWS_REGION: eu-central-1, ECR_REPO: atlas }
+jobs:
+  test-and-gate:
+    runs-on: ubuntu-latest
+    env: { ATLAS_PROVIDER: offline }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen && uv run pytest && uv run python -m evals.run
+  build:
+    needs: test-and-gate
+    runs-on: ubuntu-latest
+    outputs: { image: "${{ steps.img.outputs.image }}" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with: { role-to-assume: "${{ secrets.AWS_DEPLOY_ROLE }}", aws-region: "${{ env.AWS_REGION }}" }
+      - id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - id: img
+        run: |
+          IMAGE=${{ steps.ecr.outputs.registry }}/${ECR_REPO}:${GITHUB_SHA::8}
+          docker build -f infra/Dockerfile -t $IMAGE . && docker push $IMAGE
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+  canary:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - uses: aws-actions/configure-aws-credentials@v4
+        with: { role-to-assume: "${{ secrets.AWS_DEPLOY_ROLE }}", aws-region: "${{ env.AWS_REGION }}" }
+      - working-directory: infra/terraform
+        run: |
+          terraform init -input=false
+          terraform apply -auto-approve -var "image=${{ needs.build.outputs.image }}" -var "canary_weight=10"
+      - name: Watch online evals on the canary (48 h in prod; shortened here)
+        run: echo "Promote only if online judges + \$/ticket on the canary match stable — see docs/RUNBOOK.md RB-10"

@@ -1,0 +1,20 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.10
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: no-dotenv
+        name: never commit .env
+        entry: bash -c 'git diff --cached --name-only | grep -qx ".env" && { echo ".env is staged!"; exit 1; } || exit 0'
+        language: system
+        pass_filenames: false
+      - id: manifest-lock
+        name: MCP manifest lock is current
+        entry: uv run python scripts/lock_manifest.py --check
+        language: system
+        pass_filenames: false
+        files: ^atlas/mcp/

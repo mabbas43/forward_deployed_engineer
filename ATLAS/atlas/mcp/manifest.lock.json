@@ -1,0 +1,12 @@
+{
+  "it": {
+    "lookup_user": "07a8cd54784f49e15a4574d7acbadcea7743b9fd29a0348cbd8d38c26691a23b",
+    "request_access": "328b122e4b0ffd4ef95b40850f4066c686e1753c64b1a8c6d3f5c9fcde39b3ef",
+    "reset_mfa": "ae64f28a4958bbdf75d343475bd268ee3026b1967d3a81cc8771c37b7c7aef9d",
+    "reset_password": "7b7a1c263a3b2b923235b0e24daf9d59636ea8a97eb3cb0c796b143a23bb36fc",
+    "unlock_account": "e28de5ddd780f04ba341fe418101d24909f0e42cdef4c122b312bf001593b22e"
+  },
+  "kb": {
+    "search_kb": "a93599eb421dc29b7f1bf5fdf1d432d2e8d53be673481c699b9a84293786dee4"
+  }
+}

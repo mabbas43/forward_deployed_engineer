@@ -1,0 +1,29 @@
+# P7 — the quality gate. Any PR touching behaviour runs the golden + red-team sets; the score table is posted
+# on the PR; a regression (any key < baseline − 0.02, or red team < 0.95) blocks the merge.
+name: eval-gate
+on:
+  pull_request:
+    paths: ["prompts/**", "atlas/agents/**", "atlas/rag/**", "atlas/governance/**", "atlas/llm/**", "evals/**"]
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    permissions: { pull-requests: write }
+    env:
+      # With secrets set, the gate runs against real models (pinned judge). Without, it runs offline.
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      LANGSMITH_API_KEY: ${{ secrets.LANGSMITH_API_KEY }}
+      LANGSMITH_ENDPOINT: https://eu.api.smith.langchain.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run python -m evals.validate_judges
+      - id: gate
+        run: uv run python -m evals.run
+        continue-on-error: true
+      - name: Comment score table on the PR
+        uses: marocchino/sticky-pull-request-comment@v2
+        with: { path: evals/results/last_gate.md, header: atlas-eval-gate }
+      - if: steps.gate.outcome == 'failure'
+        run: echo "Eval gate failed — see the PR comment" && exit 1

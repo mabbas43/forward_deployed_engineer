@@ -1,0 +1,9 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "ticket": "./atlas/agents/ticket_graph.py:graph_for_studio",
+    "crag": "./atlas/rag/crag.py:build",
+    "supervisor": "./atlas/agents/supervisor.py:build"
+  },
+  "env": ".env"
+}

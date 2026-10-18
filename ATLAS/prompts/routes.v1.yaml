@@ -1,0 +1,38 @@
+# P5 — the routing table is DATA, so P7 evals can propose changes and the registry can promote them.
+# Each route: exemplars for the semantic router, which graph runs, which model, which retrieval profile.
+- name: faq
+  graph: faq
+  model: gpt-4.1-mini
+  retrieval: docs
+  min_score: 0.35
+  examples:
+    - How do I connect to the VPN from home?
+    - What is the password policy?
+    - How many vacation days do I get?
+    - Where do I submit my expense report?
+    - How do I set up the authenticator app?
+    - What does error E-4471 mean?
+    - Which printers are on the second floor?
+- name: ticket
+  graph: ticket
+  model: gpt-4.1
+  retrieval: docs+cases
+  min_score: 0.30
+  examples:
+    - I am locked out of my account, please reset my password
+    - My laptop shows a blue screen after the update
+    - The invoice from our supplier was charged twice
+    - Please give me access to the finance shared drive
+    - Outlook crashes every time I open an attachment
+    - My MFA token stopped working after I changed phones
+- name: escalate
+  graph: human
+  min_score: 0.38
+  reasons: [legal, hr_complaint, security_incident]
+  examples:
+    - I want to file a complaint about my manager
+    - I think I clicked a phishing link and entered my password
+    - We received a letter from a lawyer about a customer contract
+    - A colleague is harassing me
+    - There might be a data breach, customer data was emailed externally
+    - I want to dispute my termination

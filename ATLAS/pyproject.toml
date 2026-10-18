@@ -1,0 +1,64 @@
+[project]
+name = "atlas"
+version = "0.9.0"
+description = "ATLAS — an adaptive operations copilot. Reference implementation of the LLMOps & Adaptive Agents course (LangChain ecosystem)."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "langchain==1.4.4",
+    "langchain-core==1.6.9",
+    "langchain-text-splitters==1.1.3",
+    "langchain-openai==1.7.0",
+    "langchain-anthropic==1.7.5",
+    "langgraph==1.2.14",
+    "langgraph-checkpoint-sqlite==3.1.1",
+    "langsmith==0.14.7",
+    "langchain-mcp-adapters==0.3.2",
+    "mcp==1.30.0",
+    "fastapi==0.143.0",
+    "uvicorn==0.54.0",
+    "sse-starlette==3.5.0",
+    "httpx==0.28.1",
+    "pydantic==2.14.0",
+    "pydantic-settings==2.15.0",
+    "structlog==26.1.0",
+    "tiktoken==0.14.0",
+    "rank-bm25==0.2.2",
+    "numpy==2.5.3",
+    "pyjwt==2.15.1",
+    "pyyaml==6.0.3",
+]
+
+[project.optional-dependencies]
+# Heavy or infra-bound extras. The core runs fully offline without them.
+pii = ["presidio-analyzer", "presidio-anonymizer"]
+rerank = ["sentence-transformers"]
+otel = ["opentelemetry-api", "opentelemetry-sdk", "opentelemetry-exporter-otlp"]
+infra = ["redis", "boto3", "psycopg[binary]", "langgraph-checkpoint-postgres"]
+dashboard = ["streamlit", "matplotlib"]
+optimize = ["dspy"]
+load = ["locust"]
+
+[dependency-groups]
+dev = ["pytest==9.0.2", "pytest-asyncio==1.3.0", "ruff==0.14.10"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["atlas"]
+
+[tool.pytest.ini_options]
+markers = ["integration: hits real provider APIs (needs keys); skipped by default"]
+addopts = "-m 'not integration' -q"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501", "E731", "B008"]
